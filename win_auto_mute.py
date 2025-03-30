@@ -1,14 +1,14 @@
 import json
-import os
-import sys
 from ctypes import (POINTER, WINFUNCTYPE, Structure, byref, c_char, c_int,
                     c_uint, c_ulong, c_void_p, create_string_buffer, pointer,
                     sizeof, windll)
 from ctypes.wintypes import MSG
+from pathlib import Path
 
+from get_path import (get_runtime_folder_path, get_script_basename,
+                      get_script_folder_path)
 from mute_speakers import mute_all_speakers, mute_current_speaker
 from winapi_constants import *
-
 
 GetDesktopWindow    = windll.user32.GetDesktopWindow
 GetWindowRect       = windll.user32.GetWindowRect
@@ -114,43 +114,34 @@ hbtn_ok     = None
 hbtn_cancel = None
 
 
-def resource_path() -> str:
-    path = ''
-    if hasattr(sys, '_MEIPASS'):
-        path = os.path.join(sys._MEIPASS, 'resources\\') # type: ignore
-    else:
-        full_path_name = os.path.abspath(sys.argv[0])
-        folder_name = os.path.dirname(full_path_name)
-        path = os.path.join(folder_name, 'resources\\')
-    return path
+def resource_path() -> Path:
+    return get_runtime_folder_path() / 'resources'
 
 
 def show_open_source_license():
     FILE_LICENCE = 'oss_license.html'
-    oss_license_file = os.path.join(resource_path(), FILE_LICENCE)
-    if os.path.exists(oss_license_file):
+    oss_license_file = resource_path() / FILE_LICENCE
+    if oss_license_file.exists():
         import webbrowser
-        url = 'file:///' + oss_license_file
+        url = 'file:///' + str(oss_license_file)
         webbrowser.open(url)
 
 
 def is_exist_open_source_license() -> bool:
     FILE_LICENCE = 'oss_license.html'
-    oss_license_file = os.path.join(resource_path(), FILE_LICENCE)
-    return os.path.exists(oss_license_file)
+    oss_license_file = resource_path() / FILE_LICENCE
+    return oss_license_file.exists()
 
 
-def load_settings():
-    full_path_name = os.path.abspath(sys.argv[0])
-    folder_name = os.path.dirname(full_path_name)
-    base_file_name = os.path.basename(full_path_name)
-    split_file_name = os.path.splitext(base_file_name)
+def load_settings() -> dict:
+    script_path = get_script_folder_path()
+    basename = get_script_basename()
 
     # json file full path name
-    json_file_name = os.path.join(folder_name, split_file_name[0] + '.json')
+    json_file_name = script_path / (basename + '.json')
 
     # Load settings
-    if os.path.exists(json_file_name):
+    if json_file_name.exists():
         with open(json_file_name, 'r') as f:
             settings = json.load(f)
     else:
@@ -166,13 +157,11 @@ def load_settings():
 
 
 def save_settings():
-    full_path_name = os.path.abspath(sys.argv[0])
-    folder_name = os.path.dirname(full_path_name)
-    base_file_name = os.path.basename(full_path_name)
-    split_file_name = os.path.splitext(base_file_name)
+    script_path = get_script_folder_path()
+    basename = get_script_basename()
 
     # json file full path name
-    json_file_name = os.path.join(folder_name, split_file_name[0] + '.json')
+    json_file_name = script_path / (basename + '.json')
 
     # Load settings for checking if 'logging' is exist.
     settings = load_settings()
@@ -426,9 +415,9 @@ def WinMain(class_name, title_name):
     )
 
     # Task tray icon file
-    icon_file = os.path.join(resource_path(), 'mute_t.ico')
+    icon_file = resource_path() / 'mute_t.ico'
     # to byes
-    icon_file = icon_file.encode('utf-8')
+    icon_file = bytes(icon_file)
 
     # Task tray icon data
     nid.cbSize = sizeof(NOTIFYICONDATA)
