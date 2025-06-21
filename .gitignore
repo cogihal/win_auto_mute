@@ -2,3 +2,4 @@
 /.venv/
 /.vscode/
 
+*.code-workspace
