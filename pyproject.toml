@@ -1,0 +1,10 @@
+[project]
+name = "win-auto-mute"
+version = "1.0.0"
+description = "Auto mute speaker(s) for Windows"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "comtypes>=1.4.11",
+    "pycaw>=20240210",
+]

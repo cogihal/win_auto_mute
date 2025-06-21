@@ -48,7 +48,7 @@ The application mutes and/or set volume to zero at the following timing.
 ## Developing environments
 
 - Windows 11 Pro
-- Python 3.13.2
-- comtypes==1.4.10
+- Python 3.13.4
+- comtypes==1.4.11
 - pycaw==20240210
 
